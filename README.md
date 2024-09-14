@@ -1,5 +1,10 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+Welcome to the Smart Spoke project! We designed a chatbot that acts as a medical assistant. By asking questions to patients, the chatbot can help you understand more about what is happening to you and give you advice on what you can do in the immediate moment to make you feel better. The plan is to then send all the data collected to a doctor for further analysis.
+Tech Stack: Javascript, NextJS, Material UI, MongoDB, OpenAI, Vercel
+Visit the website at : https://smart-spoke-ncvuhjzgq-urviks-projects.vercel.app
+
+
 ## Getting Started
 
 First, run the development server:
