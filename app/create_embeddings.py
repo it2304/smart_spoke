@@ -28,20 +28,18 @@ def create_embedding(text):
 embeddings = []
 for symptom in all_symptoms:
     embedding = create_embedding(symptom)
-    embeddings.append(embedding)
+    embeddings.append(embedding.tolist())  # Convert numpy array to list
 
-# Convert embeddings to numpy array
-embeddings_array = np.array(embeddings)
-
-# Save embeddings to file
-np.save('symptom_embeddings.npy', embeddings_array)
+# Save embeddings to JSON file
+with open('symptom_embeddings.json', 'w') as f:
+    json.dump(embeddings, f)
 
 # Print some information
 print(f"Created embeddings for {len(all_symptoms)} symptoms")
-print(f"Embedding shape: {embeddings_array.shape}")
+print(f"Embedding shape: {np.array(embeddings).shape}")
 
-# Optionally, save the list of symptoms for reference
+# Save the list of symptoms for reference
 with open('symptom_list.json', 'w') as f:
     json.dump(all_symptoms, f)
 
-print("Embeddings and symptom list saved successfully.")
+print("Embeddings and symptom list saved successfully as JSON files.")
