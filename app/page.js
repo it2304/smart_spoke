@@ -18,7 +18,7 @@ export default function Home() {
     const [messages, setMessages] = useState([
       {
         role: 'assistant',
-        content: `Hello. I am a AI chat bot impersonating Donald Trump. Let's talk!`
+        content: `Hello. How are you feeling today?`
       }
     ])
     const [message, setMessage ] = useState('')
