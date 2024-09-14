@@ -1,6 +1,18 @@
+'use client'
+
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { Box, Typography, Paper, Avatar, IconButton, TextField, Button, Switch, CssBaseline, ThemeProvider } from "@mui/material";
+import SmartToyIcon from '@mui/icons-material/SmartToy';
+import PersonIcon from '@mui/icons-material/Person';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import SendIcon from '@mui/icons-material/Send';
+import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { tomorrow } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { createTheme } from '@mui/material/styles';
 
 export default function Home() {
     const [messages, setMessages] = useState([
@@ -11,9 +23,29 @@ export default function Home() {
     ])
     const [message, setMessage ] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+    const [darkMode, setDarkMode] = useState(false);
+    const isMobile = useMediaQuery('(max-width:600px)');
 
-    const sendMessage = async (e) => {
-      if (!message.trim()) return; 
+    const theme = createTheme({
+      palette: {
+        mode: darkMode ? 'dark' : 'light',
+        background: {
+          default: darkMode ? '#121212' : '#f0f0f0',
+          paper: darkMode ? '#1e1e1e' : '#ffffff',
+        },
+        primary: {
+          main: darkMode ? '#90caf9' : '#1976d2',
+          light: darkMode ? '#4b5563' : '#e3f2fd',
+        },
+        secondary: {
+          main: darkMode ? '#f48fb1' : '#dc004e',
+          light: darkMode ? '#4a4a4a' : '#fce4ec',
+        },
+      },
+    });
+
+      const sendMessage = async (e) => {
+        if (!message.trim()) return; 
 
       setMessage('')
       setMessages((messages)=>[
@@ -66,7 +98,11 @@ export default function Home() {
       } finally {
         setIsLoading(false)
       }
-
+      const copyToClipboard = (text) => {
+        navigator.clipboard.writeText(text);
+        // You could add a toast notification here
+      };
+      
       const handleKeyPress = (e) => {
         if (e.key === 'Enter' && e.shiftKey) {
           e.preventDefault()
@@ -180,7 +216,7 @@ export default function Home() {
                   </Box>
                 </Box>
               ))}
-              {loading && (
+              {isLoading && (
                 <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                   <CircularProgress />
                 </Box>
@@ -199,7 +235,7 @@ export default function Home() {
                 variant="contained" 
                 endIcon={<SendIcon />}
                 type="submit"
-                disabled={loading}
+                disabled={isLoading}
               >
                 Send
               </Button>
