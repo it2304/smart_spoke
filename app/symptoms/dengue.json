@@ -1,44 +1,53 @@
 {
-  "key_facts": [
-    "Dengue is a viral infection transmitted to humans through the bite of infected mosquitoes.",
-    "About half of the world's population is now at risk of dengue with an estimated 100-400 million infections occurring each year.",
-    "Dengue is found in tropical and sub-tropical climates worldwide, mostly in urban and semi-urban areas.",
-    "While many dengue infections are asymptomatic or produce only mild illness, the virus can occasionally cause more severe cases, and even death.",
-    "Prevention and control of dengue depend on vector control. There is no specific treatment for dengue/severe dengue, and early detection and access to proper medical care greatly lower fatality rates of severe dengue."
-  ],
-  "overview": {
-    "description": "Dengue (break-bone fever) is a viral infection that spreads from mosquitoes to people. It is more common in tropical and subtropical climates.",
-    "symptoms_overview": "Most people who get dengue will not have symptoms. But for those who do, the most common symptoms are high fever, headache, body aches, nausea, and rash. Most will get better in 1-2 weeks. Some people develop severe dengue and need care in a hospital.",
-    "severity": "In severe cases, dengue can be fatal.",
-    "prevention": "You can lower your risk of dengue by avoiding mosquito bites, especially during the day.",
-    "treatment": "Dengue is treated with pain medicine as there is no specific treatment currently."
-  },
-  "symptoms": {
-    "general_symptoms": [
-      "high fever (40°C/104°F)",
-      "severe headache",
-      "pain behind the eyes",
-      "muscle and joint pains",
-      "nausea",
-      "vomiting",
-      "swollen glands",
-      "rash"
+  "dengue": {
+    "key_facts": [
+      "Dengue is a viral infection transmitted to humans through the bite of infected mosquitoes.",
+      "About half of the world's population is now at risk of dengue with an estimated 100-400 million infections occurring each year.",
+      "Dengue is found in tropical and sub-tropical climates worldwide, mostly in urban and semi-urban areas.",
+      "While many dengue infections are asymptomatic or produce only mild illness, the virus can occasionally cause more severe cases, and even death.",
+      "Prevention and control of dengue depend on vector control. There is no specific treatment for dengue/severe dengue, and early detection and access to proper medical care greatly lower fatality rates of severe dengue."
     ],
-    "onset": "Symptoms usually begin 4-10 days after infection and last for 2-7 days.",
-    "severity_risk": "Individuals who are infected for the second time are at greater risk of severe dengue.",
-    "severe_symptoms": [
-      "severe abdominal pain",
-      "persistent vomiting",
-      "rapid breathing",
-      "bleeding gums or nose",
-      "fatigue",
-      "restlessness",
-      "blood in vomit or stool",
-      "being very thirsty",
-      "pale and cold skin",
-      "feeling weak"
-    ],
-    "severe_care": "People with these severe symptoms should get care right away.",
-    "recovery_note": "After recovery, people who have had dengue may feel tired for several weeks."
+    "overview": {
+      "description": "Dengue (break-bone fever) is a viral infection that spreads from mosquitoes to people. It is more common in tropical and subtropical climates.",
+      "symptoms_summary": "Most people who get dengue will not have symptoms. For those who do, symptoms include high fever, headache, body aches, nausea, and rash. Most recover in 1-2 weeks. Severe cases may be fatal.",
+      "treatment": "Dengue is treated with pain medicine as there is no specific treatment currently.",
+      "prevention": "Avoid mosquito bites, especially during the day."
+    },
+    "symptoms": {
+      "mild": [
+        "High fever (40°C/104°F)",
+        "Severe headache",
+        "Pain behind the eyes",
+        "Muscle and joint pains",
+        "Nausea",
+        "Vomiting",
+        "Swollen glands",
+        "Rash"
+      ],
+      "severe": [
+        "Severe abdominal pain",
+        "Persistent vomiting",
+        "Rapid breathing",
+        "Bleeding gums or nose",
+        "Fatigue",
+        "Restlessness",
+        "Blood in vomit or stool",
+        "Thirst",
+        "Pale and cold skin",
+        "Feeling weak"
+      ],
+      "onset_duration": "Symptoms usually begin 4-10 days after infection and last for 2-7 days.",
+      "risk_of_severity": "Individuals infected for the second time are at greater risk of severe dengue."
+    },
+    "transmission": {
+      "mosquito_bite": "The dengue virus is transmitted to humans through the bites of infected female mosquitoes, primarily the Aedes aegypti mosquito. Aedes albopictus (tiger mosquito) also contributes to transmission.",
+      "maternal": {
+        "description": "Evidence of maternal transmission exists, though rates are low. Timing of infection during pregnancy may affect pre-term birth, low birth weight, and fetal distress."
+      },
+      "other_modes": [
+        "Transmission via blood products, organ donation, and transfusions.",
+        "Transovarial transmission within mosquitoes."
+      ]
+    }
   }
 }
