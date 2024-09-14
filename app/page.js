@@ -19,7 +19,7 @@ export default function Home() {
     const [messages, setMessages] = useState([
       {
         role: 'assistant',
-        content: `Hello. How are you feeling today?`
+        content: `Hi, thank you for connecting with SmartHealth. I'm your medical assistant. How can I help you today?`
       }
     ])
     const [message, setMessage ] = useState('')
@@ -164,7 +164,7 @@ export default function Home() {
           }}
         >
           <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h5">Donald Trump Emulator</Typography>
+            <Typography variant="h5">SmartHealth</Typography>
             <Switch checked={darkMode} onChange={() => setDarkMode(!darkMode)} />
           </Box>
           <Paper 
