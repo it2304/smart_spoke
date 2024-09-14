@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { Box, Typography, Paper, Avatar, IconButton, TextField, Button, Switch, CssBaseline, ThemeProvider } from "@mui/material";
-import SmartToyIcon from '@mui/icons-material/SmartToy';
+import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import PersonIcon from '@mui/icons-material/Person';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import SendIcon from '@mui/icons-material/Send';
@@ -14,6 +14,7 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme } from '@mui/material/styles';
 import { CircularProgress } from "@mui/material";
+import { HealthAndSafety } from "@mui/icons-material";
 
 export default function Home() {
     const [messages, setMessages] = useState([
@@ -164,7 +165,7 @@ export default function Home() {
           }}
         >
           <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h5">SmartHealth</Typography>
+            <Typography variant="h4">SmartHealth</Typography>
             <Switch checked={darkMode} onChange={() => setDarkMode(!darkMode)} />
           </Box>
           <Paper 
@@ -194,7 +195,7 @@ export default function Home() {
                   <Box sx={{ display: "flex", flexDirection: "row", alignItems: "flex-start", maxWidth: "80%" }}>
                     {message.role === "assistant" && (
                       <Avatar sx={{ bgcolor: "primary.main", mr: 1, mt: 1 }}>
-                        <SmartToyIcon />
+                        <HealthAndSafetyIcon/>
                       </Avatar>
                     )}
                     <Paper 
