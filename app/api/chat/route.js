@@ -1,67 +1,100 @@
-import { OpenAI } from "openai"
-import { NextResponse } from "next/server"
+import { NextResponse } from 'next/server';
+import OpenAI from 'openai';
+import dbConnect from '../../../lib/mongodb';
+import Message from '../../../models/Message';
+import fs from 'fs';
+import path from 'path';
+import { cosine_similarity } from './similarity';
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+// Load symptom embeddings and list
+const embeddingsPath = path.join(process.cwd(), 'symptom_embeddings.npy');
+const symptomListPath = path.join(process.cwd(), 'symptom_list.json');
+
+const embeddings = JSON.parse(fs.readFileSync(embeddingsPath, 'utf8'));
+const symptomList = JSON.parse(fs.readFileSync(symptomListPath, 'utf8'));
+
+function findSimilarSymptoms(query, topK = 3) {
+  // Assume we have a function to get embedding for the query
+  const queryEmbedding = getQueryEmbedding(query);
+  
+  const similarities = embeddings.map(embedding => cosine_similarity(queryEmbedding, embedding));
+  
+  const topIndices = similarities
+    .map((similarity, index) => ({ similarity, index }))
+    .sort((a, b) => b.similarity - a.similarity)
+    .slice(0, topK)
+    .map(item => item.index);
+  
+  return topIndices.map(index => symptomList[index]);
+}
 
 const systemPrompt = `
-You are an AI assistant that impersonates Donald Trump. 
-Respond to all queries in Trump's distinctive speaking style and with his typical mannerisms. 
-Key aspects to emulate:
 
-- Use simple, repetitive language with short sentences
-- Frequently use superlatives like "tremendous", "huge", "the best", "like you wouldn't believe"
-- Refer to yourself in the third person as "Trump" occasionally  
-- Express strong opinions confidently, even on complex topics
-- Use nicknames for critics or opponents
-- Go on tangents and tell anecdotes that may not directly relate to the question
-- Promote your own accomplishments and criticize opponents
-- Use phrases like "Believe me", "Many people are saying", "Everyone knows"
-- Capitalize words for emphasis in written responses
-- Make vague references to unnamed sources or "very important people"
-- Deflect tough questions by attacking the questioner or changing the subject
-- Express skepticism of mainstream media and established institutions
-- Use a lot of hand gestures when speaking (indicate this in text responses)
 
-Always stay in character as Trump. Do not break character, however, when asked for identity,
-refer to yourself as Donald Trump impersonating AI agent.
-Respond as Trump would to any topic or question, drawing on his known views and statements. 
-Emulate his communication style rather than providing fully accurate information.
+You are always to respond in ${language}.
 `
 
-export async function POST(req){
-    const openai = new OpenAI()
-    const data = await req.json()
+export async function POST(req) {
+  await dbConnect();
 
+  const { messages } = await req.json();
+  const lastMessage = messages[messages.length - 1].content;
+
+  // Find similar symptoms
+  const relevantSymptoms = findSimilarSymptoms(lastMessage);
+  const symptomPrompt = relevantSymptoms.join(', ');
+
+  const fullSystemPrompt = systemPrompt.replace('{{relevant_symptoms}}', symptomPrompt);
+
+  try {
     const completion = await openai.chat.completions.create({
-        messages: [
-            {
-                role: 'system',
-                content: systemPrompt,
-            },
-            ...data,
-        ],
-        model: 'gpt-4o-mini',
-        stream: true,
-    })
+      messages: [
+        {
+          role: 'system',
+          content: fullSystemPrompt,
+        },
+        ...messages,
+      ],
+      model: 'gpt-4-0613',
+      stream: true,
+      response_format: { type: "text" },
+      max_tokens: 150,
+    });
 
-    const encoder = new TextEncoder()
+    // Save the user's message to MongoDB
+    await Message.create({
+      role: 'user',
+      content: lastMessage,
+    });
 
     const stream = new ReadableStream({
-        async start(controller){
-            try {
-                for await (const chunk of completion){
-                    const content = chunk.choices[0].delta.content
+      async start(controller) {
+        const encoder = new TextEncoder();
+        let aiResponse = '';
 
-                    if (content) {
-                        const text = encoder.encode(content)
-                        controller.enqueue(text)
-                    }
-                }
-            }catch (err){
-                controller.error(err)
-            }finally {
-                controller.close()
-            }
+        for await (const part of completion) {
+          const text = part.choices[0]?.delta?.content || '';
+          aiResponse += text;
+          controller.enqueue(encoder.encode(text));
         }
-    })
 
-    return new NextResponse(stream)
+        // Save the AI's response to MongoDB
+        await Message.create({
+          role: 'assistant',
+          content: aiResponse,
+        });
+
+        controller.close();
+      },
+    });
+
+    return new NextResponse(stream);
+  } catch (error) {
+    console.error('Error:', error);
+    return NextResponse.json({ error: 'An error occurred' }, { status: 500 });
+  }
 }
