@@ -14,8 +14,11 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme } from '@mui/material/styles';
 import { CircularProgress } from "@mui/material";
+import { useUser } from "@auth0/nextjs-auth0/client";
 
 export default function Home() {
+
+  // const {user, error, isLoading} = useUser()
     const [messages, setMessages] = useState([
       {
         role: 'assistant',
@@ -165,6 +168,8 @@ export default function Home() {
         >
           <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography variant="h5">Donald Trump Emulator</Typography>
+            <a href="/api/auth/login">Login</a>
+            <a href="/api/auth/logout">Logout</a>
             <Switch checked={darkMode} onChange={() => setDarkMode(!darkMode)} />
           </Box>
           <Paper 
