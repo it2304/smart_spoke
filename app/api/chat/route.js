@@ -202,6 +202,9 @@ export async function POST(req) {
           });
         }
 
+        // Send the conversation ID to the client
+        controller.enqueue(encoder.encode('\n\n###CONVERSATION_ID###' + conversation._id));
+
         controller.close();
       },
     });
