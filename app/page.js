@@ -166,11 +166,38 @@ export default function Home() {
             bgcolor: "background.default"
           }}
         >
-          <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography variant="h5">Donald Trump Emulator</Typography>
-            <a href="/api/auth/login">Login</a>
-            <a href="/api/auth/logout">Logout</a>
-            <Switch checked={darkMode} onChange={() => setDarkMode(!darkMode)} />
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Switch checked={darkMode} onChange={() => setDarkMode(!darkMode)} />
+              <Box sx={{ ml: 2 }}>
+              <Button  href="/api/auth/login" 
+                variant="contained" 
+                size="small" 
+                sx={{ 
+                  mr: 1, 
+                  bgcolor: 'primary.main', 
+                  color: 'white',
+                  '&:hover': {
+                    bgcolor: 'primary.dark',
+                  }
+                }}>
+                Login
+              </Button>
+              <Button href="/api/auth/logout" 
+                variant="contained" 
+                size="small"
+                sx={{ 
+                  bgcolor: 'primary.main', 
+                  color: 'white',
+                  '&:hover': {
+                    bgcolor: 'primary.dark',
+                  }
+                }}>
+                Logout
+              </Button>
+              </Box>
+            </Box>
           </Box>
           <Paper 
             elevation={3}
