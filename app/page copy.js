@@ -7,7 +7,6 @@ import SmartToyIcon from '@mui/icons-material/SmartToy';
 import PersonIcon from '@mui/icons-material/Person';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import SendIcon from '@mui/icons-material/Send';
-import StopIcon from '@mui/icons-material/Stop';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { tomorrow } from 'react-syntax-highlighter/dist/cjs/styles/prism';
@@ -15,22 +14,18 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme } from '@mui/material/styles';
 import { CircularProgress } from "@mui/material";
-import { useUser } from "@auth0/nextjs-auth0/client";
 
 export default function Home() {
-
-  // const {user, error, isLoading} = useUser()
     const [messages, setMessages] = useState([
       {
         role: 'assistant',
-        content: `Hi, thank you for connecting with SmartHealth. I'm your medical assistant. How can I help you today?`
+        content: `Hello. How are you feeling today?`
       }
     ])
     const [message, setMessage ] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [darkMode, setDarkMode] = useState(false);
     const isMobile = useMediaQuery('(max-width:600px)');
-    const [conversationId, setConversationId] = useState(null);
 
     const theme = createTheme({
       palette: {
@@ -61,7 +56,6 @@ export default function Home() {
             { role: 'user', content: message },
             { role: 'assistant', content: '' },
         ])
-        setIsLoading(true)
 
         try {
             const response = await fetch('/api/chat', {
@@ -69,10 +63,7 @@ export default function Home() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ 
-                    messages: [...messages, { role: 'user', content: message }],
-                    conversationId 
-                }),
+                body: JSON.stringify({ messages: [...messages, { role: 'user', content: message }] }),
             });
 
             if (!response.ok) {
@@ -86,17 +77,17 @@ export default function Home() {
                 const { done, value } = await reader.read()
                 if (done) break
                 const chunk = decoder.decode(value, { stream: true })
-                
-                // Check if the chunk contains conversation ID
-                if (chunk.includes('###CONVERSATION_ID###')) {
-                    const [messageChunk, idChunk] = chunk.split('###CONVERSATION_ID###')
-                    setConversationId(idChunk.trim())
-                    if (messageChunk) {
-                        updateLastMessage(messageChunk)
-                    }
-                } else {
-                    updateLastMessage(chunk)
-                }
+                setMessages((messages)=>{
+                    let lastMessage = messages[messages.length - 1]
+                    let otherMessages = messages.slice(0, messages.length - 1)
+                    return [
+                        ...otherMessages,
+                        {
+                            ...lastMessage,
+                            content: lastMessage.content + chunk,
+                        },
+                    ]
+                })           
             }
         } catch (error) {
             console.error('Error:', error)
@@ -111,20 +102,6 @@ export default function Home() {
             setIsLoading(false)
         }
     };
-
-    const updateLastMessage = (chunk) => {
-        setMessages((messages) => {
-            let lastMessage = messages[messages.length - 1]
-            let otherMessages = messages.slice(0, messages.length - 1)
-            return [
-                ...otherMessages,
-                {
-                    ...lastMessage,
-                    content: lastMessage.content + chunk,
-                },
-            ]
-        })
-    }
 
     const copyToClipboard = (text) => {
         navigator.clipboard.writeText(text);
@@ -174,35 +151,6 @@ export default function Home() {
       </Box>
     );
   
-    const endConversation = async () => {
-        if (!conversationId) return;
-
-        try {
-            const response = await fetch('/api/chat/end', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ conversationId }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to end conversation');
-            }
-
-            // Reset the conversation
-            setMessages([
-                {
-                    role: 'assistant',
-                    content: `Hello. How are you feeling today?`
-                }
-            ]);
-            setConversationId(null);
-        } catch (error) {
-            console.error('Error ending conversation:', error);
-        }
-    };
-
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />
@@ -215,49 +163,9 @@ export default function Home() {
             bgcolor: "background.default"
           }}
         >
-            <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h5">Smart Spoke Chat</Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Switch checked={darkMode} onChange={() => setDarkMode(!darkMode)} />
-              <Box sx={{ ml: 2 }}>
-              <Button  href="/api/auth/login" 
-                variant="contained" 
-                size="small" 
-                sx={{ 
-                  mr: 1, 
-                  bgcolor: 'primary.main', 
-                  color: 'white',
-                  '&:hover': {
-                    bgcolor: 'primary.dark',
-                  }
-                }}>
-                Login
-              </Button>
-              <Button href="/api/auth/logout" 
-                variant="contained" 
-                size="small"
-                sx={{ 
-                  bgcolor: 'primary.main', 
-                  color: 'white',
-                  '&:hover': {
-                    bgcolor: 'primary.dark',
-                  }
-                }}>
-                Logout
-              </Button>
-              </Box>
-                <Button 
-                    variant="contained" 
-                    color="secondary" 
-                    onClick={endConversation}
-                    startIcon={<StopIcon />}
-                    disabled={!conversationId || isLoading}
-                    sx={{ mr: 2 }}
-                >
-                    End Conversation
-                </Button>
-                <Switch checked={darkMode} onChange={() => setDarkMode(!darkMode)} />
-            </Box>
+          <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h5">Donald Trump Emulator</Typography>
+            <Switch checked={darkMode} onChange={() => setDarkMode(!darkMode)} />
           </Box>
           <Paper 
             elevation={3}

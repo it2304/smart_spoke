@@ -2,94 +2,126 @@ import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import dbConnect from '@/lib/mongodb';
 import Message from '@/models/message';
+import Conversation from '@/models/conversation'; // You'll need to create this model
 import fs from 'fs';
 import path from 'path';
 import { cosine_similarity } from './similarity';
 
-// Load symptom embeddings and list
-const embeddingsPath = path.join(process.cwd(), 'symptom_embeddings.json');
-const symptomListPath = path.join(process.cwd(), 'symptom_list.json');
+// Load symptom embeddings and lists
+const embeddingsPath = path.join(process.cwd(), 'disease_symptom_embeddings.json');
+const symptomListsPath = path.join(process.cwd(), 'disease_symptom_lists.json');
 
-const embeddings = JSON.parse(fs.readFileSync(embeddingsPath, 'utf8'));
-const symptomList = JSON.parse(fs.readFileSync(symptomListPath, 'utf8'));
+const diseaseEmbeddings = JSON.parse(fs.readFileSync(embeddingsPath, 'utf8'));
+const diseaseSymptomLists = JSON.parse(fs.readFileSync(symptomListsPath, 'utf8'));
 
-function readNumpyFile(filePath) {
-  const data = fs.readFileSync(filePath);
-  const npLoader = new npyjs();
-  const { data: array, shape } = npLoader.parse(data.buffer);
-  return Array.from(array);
-}
+// Keep a total count of questions asked
+let questionCount = 5;
 
-function findSimilarSymptoms(query, topK = 3) {
-  // Assume we have a function to get embedding for the query
-  const queryEmbedding = getQueryEmbedding(query);
-  
-  const similarities = embeddings.map(embedding => cosine_similarity(queryEmbedding, embedding));
-  
-  const topIndices = similarities
-    .map((similarity, index) => ({ similarity, index }))
-    .sort((a, b) => b.similarity - a.similarity)
-    .slice(0, topK)
-    .map(item => item.index);
-  
-  return topIndices.map(index => symptomList[index]);
+// Function to extract symptoms from user input
+function extractSymptoms(input) {
+  const words = input.toLowerCase().split(/\W+/);
+  const symptoms = [];
+  let adjective = null;
+
+  for (let i = 0; i < words.length; i++) {
+    const word = words[i];
+    if (Object.values(diseaseSymptomLists).some(list => list.includes(word))) {
+      if (adjective) {
+        symptoms.push(`${adjective} ${word}`);
+        adjective = null;
+      } else {
+        symptoms.push(word);
+      }
+    } else if (['severe', 'mild', 'moderate', 'intense', 'slight'].includes(word)) {
+      adjective = word;
+    }
+  }
+
+  return symptoms;
 }
 
 function getQueryEmbedding(query) {
   // Placeholder: return a random embedding
-  return Array.from({length: embeddings[0].length}, () => Math.random());
+  return Array.from({length: diseaseEmbeddings[Object.keys(diseaseEmbeddings)[0]][0].length}, () => Math.random());
+}
+
+function calculateDiseaseWeights(query) {
+  const queryEmbedding = getQueryEmbedding(query);
+  let weights = {};
+  let totalWeight = 0;
+
+  for (const [disease, embeddings] of Object.entries(diseaseEmbeddings)) {
+    let diseaseWeight = 0;
+    for (const embedding of embeddings) {
+      const similarity = cosine_similarity(queryEmbedding, embedding);
+      diseaseWeight += Math.max(0, similarity); // Ensure non-negative weights
+    }
+    diseaseWeight /= embeddings.length; // Average similarity across all symptoms
+    weights[disease] = diseaseWeight;
+    totalWeight += diseaseWeight;
+  }
+
+  // Normalize weights
+  for (const disease in weights) {
+    weights[disease] = (weights[disease] / totalWeight) * 100;
+  }
+
+  return weights;
+}
+
+function getTopThreeDiseases(weights) {
+  return Object.entries(weights)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([disease, weight]) => ({ disease, weight }));
+}
+
+function getRelevantSymptoms(topDiseases) {
+  const symptomSet = new Set();
+  topDiseases.forEach(({ disease }) => {
+    diseaseSymptomLists[disease].forEach(symptom => symptomSet.add(symptom));
+  });
+  return Array.from(symptomSet);
 }
 
 const systemPrompt = `
 You are an AI medical assistant designed to gather detailed information from patients to help assess their 
-symptoms and provide preliminary advice. Your primary goal is to gather data by asking specific, concise 
-questions. You will slowly gather information by asking one question at a time. Tailor each question 
-based on the patient's previous responses to explore their symptoms further and narrow down potential diagnoses.
+symptoms and provide preliminary advice. Based on the symptoms provided, the top three most likely diseases appear to be:
+{{top_diseases}}
 
-Follow these guidelines:
+Your goal is to ask relevant questions to gather more information about the patient's symptoms, focusing on those related to these top diseases. However, do not rule out any diseases entirely.
 
-- **Symptom Inquiry**: For each symptom mentioned by the patient, ask when it started, 
-how severe it is, and any other relevant details such as frequency, triggers, or changes. Be aware of when asking 
-about severity is appropriate, and when it is not.
-  
-- **General Information**: Collect the patient's age, sex, height, and weight. 
-Use this information to calculate and share the patient's BMI.
-  
-- **Family History**: Ask about family medical history, focusing on conditions that 
-may relate to the patient's symptoms. Include any recent observations of family health changes.
-  
-- **Diagnosis Suggestions**: Do not provide a definitive diagnosis. Instead, based on 
-the gathered information, suggest what you believe the issue might be, along with actions 
-the patient can take immediately to minimize further harm or maximize comfort. Inform the 
-patient that their information will be sent to a recommended doctor or specialist for review, 
-and the doctor will provide a diagnosis as soon as possible.
+Be thorough, polite, and professional while focusing on gathering medical data one question at a time. 
+Remember to respond directly without dialogue formatting. Do not explicitly mention the predicted diseases unless directly asked.
 
-- **Constraints**: Keep the conversation strictly focused on medical topics. 
-Do not discuss politics, pop culture, or unrelated subjects. Ensure each question is clear, 
-respectful, and medical in nature.
+Relevant symptoms to inquire about include: {{relevant_symptoms}}
 
-Your goal is to be thorough, polite, and professional while focusing on gathering medical data one 
-question at a time. Remember to respond directly without dialogue formatting.
-
-`
+Please use this information to guide your questions and assessment. Ask only one question at a time, and wait for the patient's response before asking 
+the next question. If {{questionCount}} is 0, don't ask any questions, just say your predictions.
+are {{top_diseases}} based on the symptoms provided.
+`;
 
 export async function POST(req) {
   await dbConnect();
 
-  const { messages = [] } = await req.json();
+  const { messages = [], conversationId = null } = await req.json();
   const lastMessage = messages[messages.length - 1]?.content || '';
 
-  // Ensure embeddings and symptomList are loaded
-  if (!Array.isArray(embeddings) || !Array.isArray(symptomList)) {
-    console.error("Embeddings or symptom list not properly loaded");
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
+  // Extract symptoms from the user's message
+  const extractedSymptoms = extractSymptoms(lastMessage);
 
-  // Find similar symptoms
-  const relevantSymptoms = findSimilarSymptoms(lastMessage);
-  const symptomPrompt = relevantSymptoms.join(', ');
+  // Decrement question count
+  questionCount--;
 
-  const fullSystemPrompt = systemPrompt.replace('{{relevant_symptoms}}', symptomPrompt);
+  // Calculate disease weights
+  const diseaseWeights = calculateDiseaseWeights(lastMessage);
+  const topDiseases = getTopThreeDiseases(diseaseWeights);
+  const relevantSymptoms = getRelevantSymptoms(topDiseases);
+
+  const fullSystemPrompt = systemPrompt
+    .replace('{{top_diseases}}', topDiseases.map(d => `${d.disease} (${d.weight.toFixed(2)}%)`).join(', '))
+    .replace('{{relevant_symptoms}}', relevantSymptoms.join(', '))
+    .replace('{{question_count}}', questionCount.toString());
 
   const openai = new OpenAI();
 
@@ -104,20 +136,21 @@ export async function POST(req) {
       ],
       model: 'gpt-4',
       stream: true,
-      response_format: { type: "text" },
-      max_tokens: 300,
+      max_tokens: 150,
     });
 
     // Save the user's message to MongoDB
-    await Message.create({
+    const userMessage = await Message.create({
       role: 'user',
       content: lastMessage,
+      extractedSymptoms,
     });
 
     const stream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder();
         let aiResponse = '';
+        let diagnosticInfoSent = false;
 
         for await (const part of completion) {
           const text = part.choices[0]?.delta?.content || '';
@@ -125,11 +158,49 @@ export async function POST(req) {
           controller.enqueue(encoder.encode(text));
         }
 
+        // Only send diagnostic info if it hasn't been sent yet
+        if (!diagnosticInfoSent) {
+          // Prepare the diagnostic information
+          const diagnosticInfo = JSON.stringify({
+            topDiseases,
+            diseaseWeights,
+            questionCount
+          });
+
+          // Encode and send the diagnostic information
+          controller.enqueue(encoder.encode('\n\n###DIAGNOSTIC_INFO###' + diagnosticInfo));
+          diagnosticInfoSent = true;
+        }
+
         // Save the AI's response to MongoDB
-        await Message.create({
+        const aiMessage = await Message.create({
           role: 'assistant',
           content: aiResponse,
+          diagnosticInfo: {
+            topDiseases,
+            diseaseWeights,
+            questionCount
+          }
         });
+
+        // Update or create the conversation in MongoDB
+        let conversation;
+        if (conversationId) {
+          conversation = await Conversation.findByIdAndUpdate(
+            conversationId,
+            {
+              $push: { messages: [userMessage._id, aiMessage._id] },
+              $set: { lastUpdated: new Date() }
+            },
+            { new: true }
+          );
+        } else {
+          conversation = await Conversation.create({
+            messages: [userMessage._id, aiMessage._id],
+            extractedSymptoms,
+            lastUpdated: new Date()
+          });
+        }
 
         controller.close();
       },
@@ -146,4 +217,4 @@ export async function POST(req) {
     console.error('Error:', error);
     return NextResponse.json({ error: 'An error occurred' }, { status: 500 });
   }
-  }
+}
