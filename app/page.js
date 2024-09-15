@@ -15,8 +15,11 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme } from '@mui/material/styles';
 import { CircularProgress } from "@mui/material";
+import { useUser } from "@auth0/nextjs-auth0/client";
 
 export default function Home() {
+
+  // const {user, error, isLoading} = useUser()
     const [messages, setMessages] = useState([
       {
         role: 'assistant',
@@ -212,9 +215,37 @@ export default function Home() {
             bgcolor: "background.default"
           }}
         >
-          <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h5">Medical Assistant</Typography>
-            <Box>
+            <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h5">Smart Spoke Chat</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Switch checked={darkMode} onChange={() => setDarkMode(!darkMode)} />
+              <Box sx={{ ml: 2 }}>
+              <Button  href="/api/auth/login" 
+                variant="contained" 
+                size="small" 
+                sx={{ 
+                  mr: 1, 
+                  bgcolor: 'primary.main', 
+                  color: 'white',
+                  '&:hover': {
+                    bgcolor: 'primary.dark',
+                  }
+                }}>
+                Login
+              </Button>
+              <Button href="/api/auth/logout" 
+                variant="contained" 
+                size="small"
+                sx={{ 
+                  bgcolor: 'primary.main', 
+                  color: 'white',
+                  '&:hover': {
+                    bgcolor: 'primary.dark',
+                  }
+                }}>
+                Logout
+              </Button>
+              </Box>
                 <Button 
                     variant="contained" 
                     color="secondary" 
