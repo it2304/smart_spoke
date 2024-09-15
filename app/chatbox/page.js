@@ -218,21 +218,9 @@ export default function Home() {
             <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography variant="h5">Smart Spoke Chat</Typography>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Switch checked={darkMode} onChange={() => setDarkMode(!darkMode)} />
+              
               <Box sx={{ ml: 2 }}>
-              <Button  href="/api/auth/login" 
-                variant="contained" 
-                size="small" 
-                sx={{ 
-                  mr: 1, 
-                  bgcolor: 'primary.main', 
-                  color: 'white',
-                  '&:hover': {
-                    bgcolor: 'primary.dark',
-                  }
-                }}>
-                Login
-              </Button>
+
               <Button href="/api/auth/logout" 
                 variant="contained" 
                 size="small"
