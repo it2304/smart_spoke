@@ -1,6 +1,6 @@
 'use client'
 
-import { useState} from "react";
+import React, { useState } from 'react';
 import { Box, Typography, Button, CssBaseline, ThemeProvider } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 import { useUser } from '@auth0/nextjs-auth0/client';
@@ -92,7 +92,7 @@ export default function Home() {
               Welcome to TelehealthAI!
             </Typography>
                     <Button
-                    href="/api/auth/login"  
+                    href="/api/auth/login" 
                     variant="contained" 
                     size="large" 
                     sx={{ 
