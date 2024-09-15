@@ -1,20 +1,15 @@
 'use client'
 
-import Image from "next/image";
-import { useState, useEffect, useRef } from "react";
-import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
-import PersonIcon from '@mui/icons-material/Person';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import SendIcon from '@mui/icons-material/Send';
-import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { tomorrow } from 'react-syntax-highlighter/dist/cjs/styles/prism';
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
+// import React, { useState } from 'react';
+// import { Box, Typography, Button, CssBaseline, ThemeProvider } from '@mui/material';
+import React, { useState } from 'react';
 import { Box, Typography, Button, CssBaseline, ThemeProvider } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
+import { useUser } from '@auth0/nextjs-auth0/client';
+
 
 export default function Home() {
+  const {user, error, isLoading} = useUser();
   const [darkMode, setDarkMode] = useState(false);
 
   const theme = createTheme({
@@ -72,21 +67,50 @@ export default function Home() {
           justifyContent: 'center',
           alignItems: 'center',
         }}>
-          <Typography variant="h2" component="h1" gutterBottom sx={{ mb: 4, textAlign: 'center' }}>
-            Welcome to TelehealthAI
+          
+          {!isLoading && (
+                user ? (
+                  <>
+                  <Typography variant="h2" component="h1" gutterBottom sx={{ mb: 4, textAlign: 'center' }}>
+            Welcome Back, {user.name}
           </Typography>
-          <Button 
-            variant="contained" 
-            size="large" 
-            sx={{ 
-              fontSize: '1.2rem', 
-              padding: '12px 24px',
-              borderRadius: '30px',
-              textTransform: 'none',
-            }}
-          >
-            Get Started
-          </Button>
+                  <Button
+                  href="/dashboard"  
+                  variant="contained" 
+                  size="large" 
+                  sx={{ 
+                    fontSize: '1.2rem', 
+                    padding: '12px 24px',
+                    borderRadius: '30px',
+                    textTransform: 'none',
+                  }}
+                >
+                  Continue
+                </Button>
+                </>        
+	                ) : (
+                    <>
+                    <Typography variant="h2" component="h1" gutterBottom sx={{ mb: 4, textAlign: 'center' }}>
+              Welcome to TelehealthAI!
+            </Typography>
+                    <Button
+                    href="/api/auth/login"  
+                    variant="contained" 
+                    size="large" 
+                    sx={{ 
+                      fontSize: '1.2rem', 
+                      padding: '12px 24px',
+                      borderRadius: '30px',
+                      textTransform: 'none',
+                    }}
+                  >
+                    Get Started
+                  </Button>
+                  </>
+                )
+              )}
+
+
         </Box>
       </Box>
     </ThemeProvider>
