@@ -1,10 +1,15 @@
 'use client'
 
+// import React, { useState } from 'react';
+// import { Box, Typography, Button, CssBaseline, ThemeProvider } from '@mui/material';
 import React, { useState } from 'react';
 import { Box, Typography, Button, CssBaseline, ThemeProvider } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
+import { useUser } from '@auth0/nextjs-auth0/client';
+
 
 export default function Home() {
+  const {user, error, isLoading} = useUser();
   const [darkMode, setDarkMode] = useState(false);
 
   const theme = createTheme({
@@ -62,21 +67,50 @@ export default function Home() {
           justifyContent: 'center',
           alignItems: 'center',
         }}>
-          <Typography variant="h2" component="h1" gutterBottom sx={{ mb: 4, textAlign: 'center' }}>
-            Welcome to TelehealthAI
+          
+          {!isLoading && (
+                user ? (
+                  <>
+                  <Typography variant="h2" component="h1" gutterBottom sx={{ mb: 4, textAlign: 'center' }}>
+            Welcome Back, {user.name}
           </Typography>
-          <Button 
-            variant="contained" 
-            size="large" 
-            sx={{ 
-              fontSize: '1.2rem', 
-              padding: '12px 24px',
-              borderRadius: '30px',
-              textTransform: 'none',
-            }}
-          >
-            Get Started
-          </Button>
+                  <Button
+                  href="/dashboard"  
+                  variant="contained" 
+                  size="large" 
+                  sx={{ 
+                    fontSize: '1.2rem', 
+                    padding: '12px 24px',
+                    borderRadius: '30px',
+                    textTransform: 'none',
+                  }}
+                >
+                  Continue
+                </Button>
+                </>        
+	                ) : (
+                    <>
+                    <Typography variant="h2" component="h1" gutterBottom sx={{ mb: 4, textAlign: 'center' }}>
+              Welcome to TelehealthAI!
+            </Typography>
+                    <Button
+                    href="/api/auth/login"  
+                    variant="contained" 
+                    size="large" 
+                    sx={{ 
+                      fontSize: '1.2rem', 
+                      padding: '12px 24px',
+                      borderRadius: '30px',
+                      textTransform: 'none',
+                    }}
+                  >
+                    Get Started
+                  </Button>
+                  </>
+                )
+              )}
+
+
         </Box>
       </Box>
     </ThemeProvider>
