@@ -1,0 +1,44 @@
+{
+    "typhoid": {
+      "key_facts": [
+        "As of 2019, an estimated 9 million people get sick from typhoid and 110,000 people die from it every year.",
+        "Symptoms include prolonged fever, fatigue, headache, nausea, abdominal pain, and constipation or diarrhea. Some patients may have a rash.",
+        "Severe cases may lead to serious complications or even death.",
+        "Typhoid fever can be treated with antibiotics, but increasing resistance to antibiotics is complicating treatment.",
+        "The typhoid conjugate vaccine is recommended for children from 6 months of age and adults up to 45 or 65 years (depending on the vaccine).",
+        "Two typhoid conjugate vaccines have been prequalified by WHO since 2017 and are being introduced into childhood immunization programs in typhoid-endemic countries."
+      ],
+      "overview": {
+        "description": "Typhoid fever is a life-threatening infection caused by the bacterium Salmonella Typhi, usually spread through contaminated food or water.",
+        "transmission": "Once Salmonella Typhi bacteria are ingested, they multiply and spread into the bloodstream.",
+        "risk_factors": "Urbanization, climate change, and antibiotic resistance can increase the global burden of typhoid, especially in communities lacking safe water or adequate sanitation."
+      },
+      "symptoms": {
+        "mild_symptoms": [
+          "Prolonged high fever",
+          "Fatigue",
+          "Headache",
+          "Nausea",
+          "Abdominal pain",
+          "Constipation or diarrhea",
+          "Rash (in some cases)"
+        ],
+        "severe_symptoms": [
+          "Severe complications",
+          "Potential death if left untreated"
+        ],
+        "diagnosis": "Typhoid fever can be confirmed through blood testing."
+      },
+      "environment": {
+        "risk_factors": "Higher in populations lacking access to safe water and adequate sanitation, especially in children.",
+        "prevention": [
+          "Access to safe water",
+          "Adequate sanitation",
+          "Hygiene among food handlers",
+          "Typhoid vaccination"
+        ],
+        "vaccine_effectiveness": "Vaccinated individuals have a lower risk and milder symptoms, while unvaccinated patients may experience more severe symptoms."
+      }
+    }
+  }
+  

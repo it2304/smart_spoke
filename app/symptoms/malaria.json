@@ -1,0 +1,73 @@
+{
+    "malaria": {
+        "key_facts": [
+        "Globally in 2022, there were an estimated 249 million malaria cases and 608,000 malaria deaths in 85 countries.",
+        "The WHO African Region carries a disproportionately high share of the global malaria burden.",
+        "In 2022, the Region was home to 94% of malaria cases (233 million) and 95% (580,000) of malaria deaths.",
+        "Children under 5 accounted for about 80% of all malaria deaths in the Region."
+        ],
+        "overview": {
+        "description": "Malaria is a life-threatening disease spread to humans by some types of mosquitoes, mostly found in tropical countries. It is preventable and curable.",
+        "cause": "The infection is caused by a parasite and does not spread from person to person.",
+        "symptoms_summary": "Symptoms can be mild (fever, chills, headache) or severe (fatigue, confusion, seizures, difficulty breathing).",
+        "at_risk_groups": [
+            "Infants",
+            "Children under 5 years",
+            "Pregnant women",
+            "Travellers",
+            "People with HIV or AIDS"
+        ],
+        "prevention": "Avoiding mosquito bites and taking medicines can prevent malaria. Treatments can stop mild cases from worsening."
+        },
+        "transmission": {
+        "main_mode": "Malaria mostly spreads to people through the bites of some infected female Anopheles mosquitoes.",
+        "other_modes": [
+            "Blood transfusion",
+            "Contaminated needles"
+        ],
+        "incubation_period": "Symptoms usually start within 10–15 days of getting bitten by an infected mosquito."
+        },
+        "parasite_species": [
+        {
+            "name": "Plasmodium falciparum",
+            "description": "The deadliest malaria parasite and the most prevalent on the African continent."
+        },
+        {
+            "name": "Plasmodium vivax",
+            "description": "The dominant malaria parasite in most countries outside of sub-Saharan Africa."
+        },
+        {
+            "name": "Plasmodium malariae",
+            "description": "One of the five species that cause malaria in humans."
+        },
+        {
+            "name": "Plasmodium ovale",
+            "description": "One of the five species that cause malaria in humans."
+        },
+        {
+            "name": "Plasmodium knowlesi",
+            "description": "One of the five species that cause malaria in humans."
+        }
+        ],
+        "symptoms": {
+        "mild_symptoms": [
+            "Fever",
+            "Headache",
+            "Chills"
+        ],
+        "severe_symptoms": [
+            "Extreme tiredness and fatigue",
+            "Impaired consciousness",
+            "Multiple convulsions",
+            "Difficulty breathing",
+            "Dark or bloody urine",
+            "Jaundice (yellowing of the eyes and skin)",
+            "Abnormal bleeding"
+        ],
+        "risk_of_severity": "Infants, children under 5 years, pregnant women, travellers, and people with HIV or AIDS are at higher risk of severe infection.",
+        "importance_of_testing": "Because some malaria symptoms are not specific, getting tested early is important.",
+        "effect_on_pregnancy": "Malaria infection during pregnancy can cause premature delivery or delivery of a baby with low birth weight."
+        }
+    }
+  }
+  
