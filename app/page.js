@@ -15,14 +15,15 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme } from '@mui/material/styles';
 import { CircularProgress } from "@mui/material";
 import { useUser } from "@auth0/nextjs-auth0/client";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const { user, error, isLoadingUser } = useUser();
 
-  // const {user, error, isLoading} = useUser()
-    const [messages, setMessages] = useState([
-      {
-        role: 'assistant',
-        content: `Hello. How are you feeling today?`
+  const [messages, setMessages] = useState([
+    {
+      role: 'assistant',
+      content: 'Hello. How are you feeling today?'
       }
     ])
     const [message, setMessage ] = useState('')
@@ -171,31 +172,39 @@ export default function Home() {
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Switch checked={darkMode} onChange={() => setDarkMode(!darkMode)} />
               <Box sx={{ ml: 2 }}>
-              <Button  href="/api/auth/login" 
-                variant="contained" 
-                size="small" 
-                sx={{ 
-                  mr: 1, 
-                  bgcolor: 'primary.main', 
-                  color: 'white',
-                  '&:hover': {
-                    bgcolor: 'primary.dark',
-                  }
-                }}>
-                Login
-              </Button>
-              <Button href="/api/auth/logout" 
-                variant="contained" 
-                size="small"
-                sx={{ 
-                  bgcolor: 'primary.main', 
-                  color: 'white',
-                  '&:hover': {
-                    bgcolor: 'primary.dark',
-                  }
-                }}>
-                Logout
-              </Button>
+              {!isLoading && (
+                user ? (
+                  <Button 
+                    href="/api/auth/logout" 
+                    variant="contained" 
+                    size="small"
+                    sx={{ 
+                      bgcolor: 'primary.main', 
+                      color: 'white',
+                      '&:hover': {
+                        bgcolor: 'primary.dark',
+                      }
+                    }}
+                  >
+                    Logout
+                  </Button>
+                ) : (
+                  <Button 
+                    href="/api/auth/login" 
+                    variant="contained" 
+                    size="small" 
+                    sx={{ 
+                      bgcolor: 'primary.main', 
+                      color: 'white',
+                      '&:hover': {
+                        bgcolor: 'primary.dark',
+                      }
+                    }}
+                  >
+                    Login
+                  </Button>
+                )
+              )}
               </Box>
             </Box>
           </Box>
