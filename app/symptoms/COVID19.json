@@ -1,0 +1,66 @@
+{
+    "COVID19": {
+      "key_facts": [
+        "COVID-19 is caused by the SARS-CoV-2 virus. The most common symptoms are fever, chills, and sore throat.",
+        "Most people recover without needing hospital treatment. People with severe symptoms should seek medical care immediately.",
+        "Over 760 million cases and 6.9 million deaths have been recorded worldwide since December 2019.",
+        "Over 13 billion vaccine doses have been administered as of June 2023."
+      ],
+      "overview": {
+        "description": "COVID-19 is the disease caused by the SARS-CoV-2 coronavirus. It usually spreads between people in close contact.",
+        "vaccination": "COVID-19 vaccines provide strong protection against severe illness and death. Vaccinated individuals are more likely to experience mild or no symptoms if infected.",
+        "high_risk_groups": "People over age 60, those with pre-existing conditions like high blood pressure, diabetes, obesity, immunosuppression, cancer, and pregnant individuals have a higher risk of severe illness."
+      },
+      "symptoms": {
+        "mild_symptoms": [
+          "Fever",
+          "Chills",
+          "Sore throat"
+        ],
+        "less_common_symptoms": [
+          "Muscle aches",
+          "Severe fatigue",
+          "Runny or blocked nose",
+          "Headache",
+          "Sore eyes",
+          "Dizziness",
+          "New and persistent cough",
+          "Tight chest or chest pain",
+          "Shortness of breath",
+          "Hoarse voice",
+          "Numbness or tingling",
+          "Appetite loss",
+          "Nausea",
+          "Vomiting",
+          "Abdominal pain",
+          "Diarrhea",
+          "Loss or change of sense of taste or smell",
+          "Difficulty sleeping"
+        ],
+        "severe_symptoms": [
+          "Difficulty breathing",
+          "Confusion",
+          "Drowsiness or loss of consciousness",
+          "Persistent pain or pressure in the chest",
+          "Cold or clammy skin",
+          "Bluish color of the skin",
+          "Loss of speech or movement"
+        ],
+        "long_COVID_symptoms": [
+          "Fatigue",
+          "Breathlessness",
+          "Cognitive dysfunction (e.g., confusion, forgetfulness)"
+        ]
+      },
+      "transmission": {
+        "description": "COVID-19 spreads through close contact between people.",
+        "precautions": "Vaccination, wearing masks, and maintaining social distance reduce transmission."
+      },
+      "treatment": {
+        "mild_cases": "Most people recover without hospital treatment.",
+        "severe_cases": "Immediate medical care is required. Severe illness can lead to death, respiratory failure, sepsis, blood clots, and multi-organ failure.",
+        "long_COVID": "Some people continue to experience symptoms after recovery, impacting daily activities."
+      }
+    }
+  }
+  

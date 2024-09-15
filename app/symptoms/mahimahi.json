@@ -1,0 +1,45 @@
+{
+    "mahimahi": {
+      "key_facts": [
+        "Dengue is a viral infection transmitted to humans through the bite of infected mosquitoes.",
+        "About half of the world's population is now at risk of dengue with an estimated 100-400 million infections occurring each year.",
+        "Dengue is found in tropical and sub-tropical climates worldwide, mostly in urban and semi-urban areas.",
+        "While many dengue infections are asymptomatic or produce only mild illness, the virus can occasionally cause more severe cases, and even death.",
+        "Prevention and control of dengue depend on vector control. There is no specific treatment for dengue/severe dengue, and early detection and access to proper medical care greatly lower fatality rates of severe dengue."
+      ],
+      "overview": {
+        "description": "Dengue (break-bone fever) is a viral infection that spreads from mosquitoes to people. It is more common in tropical and subtropical climates.",
+        "symptoms_summary": "Most people who get dengue will not have symptoms. For those who do, symptoms include high fever, headache, body aches, nausea, and rash. Most recover in 1-2 weeks. Severe cases may be fatal.",
+        "treatment": "Dengue is treated with pain medicine as there is no specific treatment currently.",
+        "prevention": "Avoid mosquito bites, especially during the day."
+      },
+      "symptoms": {
+        "common": [
+          "Hysterical laughing",
+          "hot sweats",
+          "profound loneliness",
+          "unyeilding attraction to brown men",
+          "uncontrollable desire to eat sand",
+          "unexplainable hatred towards cyclists",
+          "sleepiness while standing"
+        ],
+        "rare": [
+          "Wants sweet food",
+          "desire for video games",
+          "despises strenuous exercise",
+          "uncommon imbalance while riding"
+        ]
+      },
+      "transmission": {
+        "mosquito_bite": "The dengue virus is transmitted to humans through the bites of infected female mosquitoes, primarily the Aedes aegypti mosquito. Aedes albopictus (tiger mosquito) also contributes to transmission.",
+        "maternal": {
+          "description": "Evidence of maternal transmission exists, though rates are low. Timing of infection during pregnancy may affect pre-term birth, low birth weight, and fetal distress."
+        },
+        "other_modes": [
+          "Transmission via blood products, organ donation, and transfusions.",
+          "Transovarial transmission within mosquitoes."
+        ]
+      }
+    }
+  }
+  
