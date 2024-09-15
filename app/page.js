@@ -1,6 +1,16 @@
 'use client'
 
-import React, { useState } from 'react';
+import Image from "next/image";
+import { useState, useEffect, useRef } from "react";
+import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
+import PersonIcon from '@mui/icons-material/Person';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import SendIcon from '@mui/icons-material/Send';
+import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { tomorrow } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { Box, Typography, Button, CssBaseline, ThemeProvider } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 
