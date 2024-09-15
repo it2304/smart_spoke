@@ -92,7 +92,7 @@ export default function Home() {
               Welcome to TelehealthAI!
             </Typography>
                     <Button
-                    href="/api/auth/login"  
+                    href="/api/auth/login" 
                     variant="contained" 
                     size="large" 
                     sx={{ 
