@@ -20,7 +20,7 @@ export default function Home() {
     const [messages, setMessages] = useState([
       {
         role: 'assistant',
-        content: `Hello. How are you feeling today?`
+        content: `Hi, thank you for connecting with SmartHealth. I'm your medical assistant. How can I help you today?`
       }
     ])
     const [message, setMessage ] = useState('')
