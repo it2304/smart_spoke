@@ -1,7 +1,4 @@
 'use client'
-
-// import React, { useState } from 'react';
-// import { Box, Typography, Button, CssBaseline, ThemeProvider } from '@mui/material';
 import React, { useState } from 'react';
 import { Box, Typography, Button, CssBaseline, ThemeProvider } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
@@ -94,7 +91,7 @@ export default function Home() {
               Welcome to TelehealthAI!
             </Typography>
                     <Button
-                    href="/api/auth/login"  
+                    href="/api/auth/login" 
                     variant="contained" 
                     size="large" 
                     sx={{ 
