@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
-import {Paper, Avatar, IconButton, TextField, Button, Switch, CssBaseline, ThemeProvider } from "@mui/material";
 import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import PersonIcon from '@mui/icons-material/Person';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
