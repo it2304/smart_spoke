@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import dbConnect from '@/lib/mongodb';
+import dbConnect from '@/lib/dbConnect';
 import Message from '@/models/message';
 import Conversation from '@/models/conversation'; // You'll need to create this model
 import fs from 'fs';
@@ -14,8 +14,6 @@ const symptomListsPath = path.join(process.cwd(), 'disease_symptom_lists.json');
 const diseaseEmbeddings = JSON.parse(fs.readFileSync(embeddingsPath, 'utf8'));
 const diseaseSymptomLists = JSON.parse(fs.readFileSync(symptomListsPath, 'utf8'));
 
-// Keep a total count of questions asked
-let questionCount = 5;
 
 // Function to extract symptoms from user input
 function extractSymptoms(input) {
@@ -40,9 +38,34 @@ function extractSymptoms(input) {
   return symptoms;
 }
 
+// Updated getQueryEmbedding function
 function getQueryEmbedding(query) {
-  // Placeholder: return a random embedding
-  return Array.from({length: diseaseEmbeddings[Object.keys(diseaseEmbeddings)[0]][0].length}, () => Math.random());
+  const words = query.toLowerCase().split(/\W+/);
+  const embedding = new Array(diseaseEmbeddings[Object.keys(diseaseEmbeddings)[0]][0].length).fill(0);
+  let wordCount = 0;
+
+  words.forEach(word => {
+    for (const [disease, embeddings] of Object.entries(diseaseEmbeddings)) {
+      if (diseaseSymptomLists[disease].includes(word)) {
+        embeddings.forEach(symptomEmbedding => {
+          for (let i = 0; i < embedding.length; i++) {
+            embedding[i] += symptomEmbedding[i];
+          }
+        });
+        wordCount++;
+        break;
+      }
+    }
+  });
+
+  // Normalize the embedding
+  if (wordCount > 0) {
+    for (let i = 0; i < embedding.length; i++) {
+      embedding[i] /= wordCount;
+    }
+  }
+
+  return embedding;
 }
 
 function calculateDiseaseWeights(query) {
@@ -63,7 +86,7 @@ function calculateDiseaseWeights(query) {
 
   // Normalize weights
   for (const disease in weights) {
-    weights[disease] = (weights[disease] / totalWeight) * 100;
+    weights[disease] = totalWeight > 0 ? (weights[disease] / totalWeight) * 100 : 0;
   }
 
   return weights;
@@ -71,9 +94,10 @@ function calculateDiseaseWeights(query) {
 
 function getTopThreeDiseases(weights) {
   return Object.entries(weights)
+    .filter(([_, weight]) => !isNaN(weight) && isFinite(weight))
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
-    .map(([disease, weight]) => ({ disease, weight }));
+    .map(([disease, weight]) => ({ disease, weight: parseFloat(weight.toFixed(2)) }));
 }
 
 function getRelevantSymptoms(topDiseases) {
@@ -84,6 +108,8 @@ function getRelevantSymptoms(topDiseases) {
   return Array.from(symptomSet);
 }
 
+
+
 const systemPrompt = `
 You are an AI medical assistant designed to gather detailed information from patients to help assess their 
 symptoms and provide preliminary advice. Based on the symptoms provided, the top three most likely diseases appear to be:
@@ -91,24 +117,46 @@ symptoms and provide preliminary advice. Based on the symptoms provided, the top
 
 Your goal is to ask relevant questions to gather more information about the patient's symptoms, focusing on those related to these top diseases. However, do not rule out any diseases entirely.
 
-Be thorough, polite, and professional while focusing on gathering medical data one question at a time. 
-Remember to respond directly without dialogue formatting. Do not explicitly mention the predicted diseases unless directly asked.
+Be thorough, polite, and professional while focusing on gathering medical data one question at a time. Do not explicitly mention the predicted diseases unless directly asked
+in the following manner "Now now what are my diseases?"
 
-Relevant symptoms to inquire about include: {{relevant_symptoms}}
+Relevant symptoms to inquire about include: {{relevant_symptoms}}. 
 
 Please use this information to guide your questions and assessment. Ask only one question at a time, and wait for the patient's response before asking 
-the next question. If {{questionCount}} is 0, don't ask any questions, just say your predictions.
-are {{top_diseases}} based on the symptoms provided.
+the next question. If {{questionCount}} is 5, don't ask any questions. 
+
+You are always to respond in {{language_preference}}
 `;
 
 export async function POST(req) {
   await dbConnect();
+  let questionCount = 5;
 
-  const { messages = [], conversationId = null } = await req.json();
+  const body = await req.json();
+  const { messages = [], conversationId = null, languagePreference = 'English', userId } = body;
+
   const lastMessage = messages[messages.length - 1]?.content || '';
 
   // Extract symptoms from the user's message
   const extractedSymptoms = extractSymptoms(lastMessage);
+
+  let conversation;
+
+  if (!conversationId) {
+    conversation = await Conversation.create({
+      userId,
+      extractedSymptoms,
+      lastUpdated: new Date(),
+      questionCount,
+      status: 'active',
+      startedAt: new Date()
+    });
+  } else {
+    conversation = await Conversation.findById(conversationId);
+    if (!conversation) {
+      return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
+    }
+  }
 
   // Decrement question count
   questionCount--;
@@ -121,7 +169,8 @@ export async function POST(req) {
   const fullSystemPrompt = systemPrompt
     .replace('{{top_diseases}}', topDiseases.map(d => `${d.disease} (${d.weight.toFixed(2)}%)`).join(', '))
     .replace('{{relevant_symptoms}}', relevantSymptoms.join(', '))
-    .replace('{{question_count}}', questionCount.toString());
+    .replace('{{question_count}}', questionCount.toString())
+    .replace('{{language_preference}}', languagePreference);
 
   const openai = new OpenAI();
 
@@ -133,24 +182,19 @@ export async function POST(req) {
           content: fullSystemPrompt,
         },
         ...messages,
+        { role: 'user', content: lastMessage },
       ],
-      model: 'gpt-4',
+      model: 'gpt-4o-mini',
       stream: true,
       max_tokens: 150,
     });
 
-    // Save the user's message to MongoDB
-    const userMessage = await Message.create({
-      role: 'user',
-      content: lastMessage,
-      extractedSymptoms,
-    });
+    let aiResponse = '';
 
     const stream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder();
         let aiResponse = '';
-        let diagnosticInfoSent = false;
 
         for await (const part of completion) {
           const text = part.choices[0]?.delta?.content || '';
@@ -158,55 +202,34 @@ export async function POST(req) {
           controller.enqueue(encoder.encode(text));
         }
 
-        // Only send diagnostic info if it hasn't been sent yet
-        if (!diagnosticInfoSent) {
-          // Prepare the diagnostic information
-          const diagnosticInfo = JSON.stringify({
-            topDiseases,
-            diseaseWeights,
-            questionCount
-          });
-
-          // Encode and send the diagnostic information
-          controller.enqueue(encoder.encode('\n\n###DIAGNOSTIC_INFO###' + diagnosticInfo));
-          diagnosticInfoSent = true;
-        }
-
         // Save the AI's response to MongoDB
-        const aiMessage = await Message.create({
+        await Message.create({
           role: 'assistant',
           content: aiResponse,
-          diagnosticInfo: {
-            topDiseases,
-            diseaseWeights,
-            questionCount
-          }
         });
-
-        // Update or create the conversation in MongoDB
-        let conversation;
-        if (conversationId) {
-          conversation = await Conversation.findByIdAndUpdate(
-            conversationId,
-            {
-              $push: { messages: [userMessage._id, aiMessage._id] },
-              $set: { lastUpdated: new Date() }
-            },
-            { new: true }
-          );
-        } else {
-          conversation = await Conversation.create({
-            messages: [userMessage._id, aiMessage._id],
-            extractedSymptoms,
-            lastUpdated: new Date()
-          });
-        }
-
-        // Send the conversation ID to the client
-        controller.enqueue(encoder.encode('\n\n###CONVERSATION_ID###' + conversation._id));
 
         controller.close();
       },
+    });
+
+    // After processing the AI response
+    const userMessage = await Message.create({ role: 'user', content: lastMessage });
+    const aiMessage = await Message.create({ role: 'assistant', content: aiResponse });
+
+    // Update the conversation with new messages and data
+    await Conversation.findByIdAndUpdate(conversation._id, {
+      $push: { 
+        messages: [userMessage._id, aiMessage._id],
+        userInputs: lastMessage,
+        aiResponses: aiResponse,
+        extractedSymptoms: { $each: extractedSymptoms }
+      },
+      $set: {
+        topDiseases: topDiseases.filter(d => !isNaN(d.weight) && isFinite(d.weight)),
+        diseaseWeights,
+        lastUpdated: new Date(),
+        questionCount
+      }
     });
 
     return new NextResponse(stream, {
@@ -220,4 +243,5 @@ export async function POST(req) {
     console.error('Error:', error);
     return NextResponse.json({ error: 'An error occurred' }, { status: 500 });
   }
+
 }

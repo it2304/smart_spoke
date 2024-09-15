@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
+import { useUser } from '@auth0/nextjs-auth0/client'; // Add this import
 
 const UserInfoForm = () => {
   const [firstName, setFirstName] = useState('');
@@ -13,9 +14,47 @@ const UserInfoForm = () => {
   const [sex, setSex] = useState('');
   const [result, setResult] = useState('');
 
-  const handleSubmit = (e) => {
+  const { user, error, isLoading } = useUser(); // Add this line
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setResult(`Name: ${firstName} ${lastName}, Weight: ${weight} kg, Height: ${height} cm, Age: ${age}, Location: ${cityState}, ${country}, Sex: ${sex}`);
+    
+    if (!user) {
+      setResult('Please log in to save your information.');
+      return;
+    }
+
+    const userData = {
+      auth0Id: user.sub,
+      firstName,
+      lastName,
+      weight,
+      height,
+      age,
+      cityState,
+      country,
+      sex
+    };
+
+    try {
+      const response = await fetch('/api/saveUserInfo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (response.ok) {
+        setResult('User information saved successfully!');
+        window.location.href = '/dashboard';
+      } else {
+        setResult('Failed to save user information. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error saving user info:', error);
+      setResult('An error occurred while saving user information.');
+    }
   };
 
   return (
